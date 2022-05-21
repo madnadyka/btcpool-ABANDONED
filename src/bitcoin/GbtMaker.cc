@@ -206,7 +206,7 @@ void GbtMaker::kafkaProduceMsg(const void *payload, size_t len) {
 bool GbtMaker::bitcoindRpcGBT(string &response) {
   string request =
       "{\"jsonrpc\":\"1.0\",\"id\":\"1\",\"method\":\"getblocktemplate\","
-      "\"params\":[{\"rules\" : [\"segwit\"]}]}";
+      "\"params\":[{\"rules\" : [\"mweb\",\"segwit\"]}]}";
   bool res = blockchainNodeRpcCall(
       bitcoindRpcAddr_.c_str(),
       bitcoindRpcUserpass_.c_str(),
