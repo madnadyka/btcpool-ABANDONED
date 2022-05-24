@@ -205,6 +205,7 @@ void BlockMakerBitcoin::addRawgbt(const char *str, size_t len) {
   }
 
   const string gbt = DecodeBase64(r["block_template_base64"].str());
+  LOG(INFO) << "gbt: " << gbt;
   assert(gbt.length() > 64); // valid gbt string's len at least 64 bytes
 
   JsonNode nodeGbt;
@@ -737,6 +738,7 @@ void BlockMakerBitcoin::processSolvedShare(rd_kafka_message_t *rkmessage) {
 
   // submit to bitcoind
   const string blockHex = EncodeHexBlock(newblk);
+  LOG(INFO) << "blockHex " << blockHex;
 #if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
   if (lightVersion) {
     LOG(INFO) << "submit block light: " << newblk.GetHash().ToString()
