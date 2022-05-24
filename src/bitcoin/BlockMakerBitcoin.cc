@@ -205,7 +205,7 @@ void BlockMakerBitcoin::addRawgbt(const char *str, size_t len) {
   }
 
   const string gbt = DecodeBase64(r["block_template_base64"].str());
-  LOG(INFO) << "gbt: " << gbt;
+  //LOG(INFO) << "gbt: " << gbt;
   assert(gbt.length() > 64); // valid gbt string's len at least 64 bytes
 
   JsonNode nodeGbt;
