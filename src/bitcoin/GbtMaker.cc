@@ -204,9 +204,15 @@ void GbtMaker::kafkaProduceMsg(const void *payload, size_t len) {
 }
 
 bool GbtMaker::bitcoindRpcGBT(string &response) {
-  string request =
-      "{\"jsonrpc\":\"1.0\",\"id\":\"1\",\"method\":\"getblocktemplate\","
-      "\"params\":[{\"rules\" : [\"mweb\",\"segwit\"]}]}";
+#ifdef CHAIN_TYPE_LTC
+      string request =
+          "{\"jsonrpc\":\"1.0\",\"id\":\"1\",\"method\":\"getblocktemplate\","
+          "\"params\":[{\"rules\" : [\"mweb\",\"segwit\"]}]}";
+#else
+      string request =
+          "{\"jsonrpc\":\"1.0\",\"id\":\"1\",\"method\":\"getblocktemplate\","
+          "\"params\":[{\"rules\" : [\"segwit\"]}]}";
+#endif
   bool res = blockchainNodeRpcCall(
       bitcoindRpcAddr_.c_str(),
       bitcoindRpcUserpass_.c_str(),
@@ -258,6 +264,9 @@ string GbtMaker::makeRawGbtMsg() {
             << r["result"]["coinbasevalue"]["fee"].uint64()
 #else
             << ", coinbase_value: " << r["result"]["coinbasevalue"].uint64()
+#endif
+#ifdef CHAIN_TYPE_LTC
+            << ", mweb: " << r["result"]["mweb"].str()
 #endif
             << ", bits: " << r["result"]["bits"].str()
             << ", mintime: " << r["result"]["mintime"].uint32()

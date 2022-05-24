@@ -56,6 +56,9 @@ protected:
   // key: gbthash, value: block template json
   std::map<uint256, shared_ptr<vector<CTransactionRef>>> rawGbtMap_;
 
+  // key: gbthash, value: mweb block
+  std::map<uint256, string> rawGbtMWEBMap_;
+
   mutex jobIdMapLock_;
   size_t kMaxStratumJobNum_;
   // key: jobId, value: gbthash
@@ -87,7 +90,7 @@ protected:
   std::map<uint64_t, uint256> jobId2RskHashForMergeMining_;
 
   void insertRawGbt(
-      const uint256 &gbtHash, shared_ptr<vector<CTransactionRef>> vtxs);
+      const uint256 &gbtHash, shared_ptr<vector<CTransactionRef>> vtxs, string &mweb);
 
   thread threadConsumeRawGbt_;
   thread threadConsumeStratumJob_;

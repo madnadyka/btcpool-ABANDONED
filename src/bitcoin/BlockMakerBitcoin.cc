@@ -241,17 +241,23 @@ void BlockMakerBitcoin::addRawgbt(const char *str, size_t len) {
 #endif
   }
 
+string mweb;
+#if defined(CHAIN_TYPE_LTC)
+   mweb=jgbt["mweb"].str();
+#endif // CHAIN_TYPE_LTC
+
   LOG(INFO) << "insert rawgbt: " << gbtHash.ToString()
             << ", txs: " << vtxs->size();
-  insertRawGbt(gbtHash, vtxs);
+  insertRawGbt(gbtHash, vtxs, mweb);
 }
 
 void BlockMakerBitcoin::insertRawGbt(
-    const uint256 &gbtHash, shared_ptr<vector<CTransactionRef>> vtxs) {
+    const uint256 &gbtHash, shared_ptr<vector<CTransactionRef>> vtxs, string &mweb) {
   ScopeLock ls(rawGbtLock_);
 
   // insert rawgbt
   rawGbtMap_[gbtHash] = vtxs;
+  rawGbtMWEBMap_[gbtHash] = mweb;
   rawGbtQ_.push_back(gbtHash);
 
   // remove rawgbt if need
@@ -259,6 +265,7 @@ void BlockMakerBitcoin::insertRawGbt(
     const uint256 h = *rawGbtQ_.begin();
 
     rawGbtMap_.erase(h); // delete from map
+    rawGbtMWEBMap_.erase(h); // delete from map
     rawGbtQ_.pop_front(); // delete from Q
   }
 }
@@ -737,8 +744,17 @@ void BlockMakerBitcoin::processSolvedShare(rd_kafka_message_t *rkmessage) {
   }
 
   // submit to bitcoind
-  const string blockHex = EncodeHexBlock(newblk);
-  LOG(INFO) << "blockHex " << blockHex;
+  string blockHex = EncodeHexBlock(newblk);
+   LOG(INFO) << "blockHex " << blockHex;
+#ifdef CHAIN_TYPE_LTC
+  string mweb = rawGbtMWEBMap_[gbtHash];
+  if (!mweb.empty()) {
+    blockHex.pop_back();
+    blockHex = blockHex+"1"+mweb;
+  }
+  LOG(INFO) << "blockHex with MWEB " << blockHex;
+#endif
+
 #if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
   if (lightVersion) {
     LOG(INFO) << "submit block light: " << newblk.GetHash().ToString()
